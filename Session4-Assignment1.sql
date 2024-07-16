@@ -25,14 +25,17 @@ SELECT number_of_orders(6, 2024) AS order_count;
  */
 DELIMITER $$  
 CREATE FUNCTION orders_in_year(order_year INT)
-RETURNS INT
+RETURNS VARCHAR(15)
 DETERMINISTIC
 BEGIN 
-	DECLARE order_count INT;
-    SELECT COUNT(id) INTO order_count
+    DECLARE max_orders VARCHAR(15);
+    SELECT MONTHNAME(order_date) INTO max_orders
     FROM orders
-    WHERE YEAR(order_date) = order_year;
-    RETURN order_count;
+    WHERE YEAR(order_date) = order_year
+    GROUP BY MONTHNAME(order_date)
+    ORDER BY COUNT(id) DESC
+    LIMIT 1;
+    RETURN max_orders;
 END $$
 
 SELECT orders_in_year(2024) AS order_count;
